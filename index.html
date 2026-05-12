@@ -4,70 +4,223 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Nate Howard — JOV AI</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      min-height: 100%;
-      background: #0d0d0d;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 32px 20px;
-      font-family: 'Montserrat', sans-serif;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    .wrap {
-      width: 100%;
-      max-width: 420px;
+      height: 100%;
+      background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 24px;
+      justify-content: center;
+      gap: 36px;
+      font-family: 'Montserrat', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      overflow: hidden;
+      user-select: none;
     }
 
-    /* Card image — full width, natural aspect ratio */
-    .card-img {
-      width: 100%;
+    /* ── 3D scene ── */
+    .scene {
+      perspective: 900px;
+      perspective-origin: 50% 50%;
+      cursor: grab;
+    }
+    .scene:active { cursor: grabbing; }
+
+    .card-3d {
+      position: relative;
+      width: min(88vw, 480px);
+      aspect-ratio: 1.75 / 1;
+      transform-style: preserve-3d;
+      transform: rotateX(4deg) rotateY(-8deg);
+      transition: box-shadow 0.1s;
       border-radius: 14px;
-      display: block;
-      box-shadow:
-        0 0 0 1px #2a2a2a,
-        0 24px 60px rgba(0,0,0,0.8);
     }
 
-    /* Save button */
-    .save-btn {
+    /* Front face */
+    .face {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      overflow: hidden;
+      backface-visibility: hidden;
+    }
+    .face img {
       width: 100%;
-      padding: 16px;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    /* Specular highlight overlay that moves with tilt */
+    .shine {
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      pointer-events: none;
+      background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 65%);
+      mix-blend-mode: screen;
+      transition: background 0.05s;
+    }
+
+    /* Drop zone hint ring */
+    .card-3d.drag-over::after {
+      content: 'Drop new image';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background: rgba(201,149,10,0.25);
+      border: 2px dashed #e8c050;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      color: #e8c050;
+      text-transform: uppercase;
+    }
+
+    /* ── Save button ── */
+    .save-btn {
+      width: min(88vw, 480px);
+      padding: 15px;
       border: none;
       border-radius: 12px;
       background: linear-gradient(135deg, #7a5500 0%, #c9950a 30%, #e8c050 55%, #c9950a 75%, #7a5500 100%);
       font-family: 'Montserrat', sans-serif;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.2em;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
       color: #111;
       cursor: pointer;
+      box-shadow: 0 4px 28px rgba(201,149,10,0.35);
       transition: filter 0.2s, transform 0.15s;
-      box-shadow: 0 4px 24px rgba(201,149,10,0.3);
     }
-    .save-btn:hover  { filter: brightness(1.12); transform: translateY(-1px); }
+    .save-btn:hover  { filter: brightness(1.12); transform: translateY(-2px); }
     .save-btn:active { transform: translateY(0);  filter: brightness(0.95); }
+
+    .hint {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      color: #333;
+      text-transform: uppercase;
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <img class="card-img" src="card.png" alt="Nate Howard — JOV AI" />
-    <button class="save-btn" onclick="saveContact()">Save Contact</button>
+
+  <div class="scene" id="scene">
+    <div class="card-3d" id="card">
+      <div class="face">
+        <img id="cardImg" src="card.png" alt="Nate Howard — JOV AI" />
+      </div>
+      <div class="shine" id="shine"></div>
+    </div>
   </div>
 
+  <button class="save-btn" onclick="saveContact()">Save Contact</button>
+  <div class="hint">Drag to spin &nbsp;·&nbsp; Drop image to update</div>
+
   <script>
+    const card  = document.getElementById('card');
+    const shine = document.getElementById('shine');
+    const img   = document.getElementById('cardImg');
+
+    // ── 3D drag rotation ──
+    let dragging = false;
+    let startX, startY, rotX = 4, rotY = -8;
+
+    function setTransform(rx, ry) {
+      card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+      const sx = 50 + ry * -1.2;
+      const sy = 50 + rx * 1.2;
+      shine.style.background = `radial-gradient(ellipse at ${sx}% ${sy}%, rgba(255,255,255,0.18) 0%, transparent 65%)`;
+    }
+
+    document.getElementById('scene').addEventListener('mousedown', e => {
+      dragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      startX = e.clientX;
+      startY = e.clientY;
+      rotY = Math.max(-40, Math.min(40, rotY + dx * 0.5));
+      rotX = Math.max(-30, Math.min(30, rotX - dy * 0.5));
+      setTransform(rotX, rotY);
+    });
+
+    window.addEventListener('mouseup', () => { dragging = false; });
+
+    // Touch support
+    let lastTX, lastTY;
+    card.addEventListener('touchstart', e => {
+      lastTX = e.touches[0].clientX;
+      lastTY = e.touches[0].clientY;
+    }, { passive: true });
+
+    card.addEventListener('touchmove', e => {
+      const dx = e.touches[0].clientX - lastTX;
+      const dy = e.touches[0].clientY - lastTY;
+      lastTX = e.touches[0].clientX;
+      lastTY = e.touches[0].clientY;
+      rotY = Math.max(-40, Math.min(40, rotY + dx * 0.5));
+      rotX = Math.max(-30, Math.min(30, rotX - dy * 0.5));
+      setTransform(rotX, rotY);
+    }, { passive: true });
+
+    // Idle float animation when not dragging
+    let frame;
+    let idleAngle = 0;
+    function idle() {
+      if (!dragging) {
+        idleAngle += 0.3;
+        const iy = Math.sin(idleAngle * Math.PI / 180) * 6 - 8;
+        const ix = Math.cos(idleAngle * Math.PI / 180 * 0.6) * 3 + 4;
+        setTransform(ix, iy);
+      }
+      frame = requestAnimationFrame(idle);
+    }
+
+    document.getElementById('scene').addEventListener('mousedown', () => cancelAnimationFrame(frame));
+    window.addEventListener('mouseup', () => { setTimeout(() => { idle(); }, 1000); });
+
+    idle();
+
+    // ── Drag-and-drop image replacement ──
+    ['dragenter','dragover'].forEach(evt => {
+      card.addEventListener(evt, e => {
+        e.preventDefault();
+        card.classList.add('drag-over');
+      });
+    });
+
+    ['dragleave','dragend'].forEach(evt => {
+      card.addEventListener(evt, () => card.classList.remove('drag-over'));
+    });
+
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      card.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = ev => { img.src = ev.target.result; };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // ── Save contact ──
     function saveContact() {
       const vcard = [
         'BEGIN:VCARD',
@@ -85,12 +238,9 @@
       const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      a.href     = url;
-      a.download = 'Nate-Howard.vcf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      a.href = url; a.download = 'Nate-Howard.vcf';
+      document.body.appendChild(a); a.click();
+      document.body.removeChild(a); URL.revokeObjectURL(url);
     }
   </script>
 </body>
