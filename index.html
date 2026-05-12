@@ -10,87 +10,79 @@
 
     html, body {
       height: 100%;
-      background: radial-gradient(ellipse at center, #1a1a1a 0%, #0a0a0a 100%);
+      background: radial-gradient(ellipse at center, #1c1c1c 0%, #090909 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 36px;
+      gap: 28px;
       font-family: 'Montserrat', sans-serif;
       -webkit-font-smoothing: antialiased;
       overflow: hidden;
       user-select: none;
+      touch-action: none;
     }
 
-    /* ── 3D scene ── */
     .scene {
-      perspective: 900px;
-      perspective-origin: 50% 50%;
+      perspective: 1000px;
       cursor: grab;
     }
-    .scene:active { cursor: grabbing; }
+    .scene.dragging { cursor: grabbing; }
 
     .card-3d {
       position: relative;
-      width: min(88vw, 480px);
-      aspect-ratio: 1.75 / 1;
+      width: min(86vw, 460px);
+      aspect-ratio: 1.75;
+      border-radius: 12px;
       transform-style: preserve-3d;
-      transform: rotateX(4deg) rotateY(-8deg);
-      transition: box-shadow 0.1s;
-      border-radius: 14px;
+      will-change: transform;
     }
 
-    /* Front face */
-    .face {
-      position: absolute;
-      inset: 0;
-      border-radius: 14px;
-      overflow: hidden;
-      backface-visibility: hidden;
-    }
-    .face img {
+    .card-3d img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      border-radius: 12px;
       display: block;
       pointer-events: none;
+      /* fix rounded corners on 3d-transformed elements */
+      -webkit-mask-image: -webkit-radial-gradient(white, black);
+      mask-image: radial-gradient(white, black);
     }
 
-    /* Specular highlight overlay that moves with tilt */
+    /* moving specular shine */
     .shine {
       position: absolute;
       inset: 0;
-      border-radius: 14px;
+      border-radius: 12px;
       pointer-events: none;
-      background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 65%);
+      background: radial-gradient(ellipse at 30% 25%, rgba(255,255,255,0.15) 0%, transparent 60%);
       mix-blend-mode: screen;
-      transition: background 0.05s;
     }
 
-    /* Drop zone hint ring */
+    /* drag-over state */
     .card-3d.drag-over::after {
-      content: 'Drop new image';
+      content: 'Drop to update image';
       position: absolute;
       inset: 0;
-      border-radius: 14px;
-      background: rgba(201,149,10,0.25);
+      border-radius: 12px;
+      background: rgba(201,149,10,0.22);
       border: 2px dashed #e8c050;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.15em;
+      letter-spacing: 0.14em;
       color: #e8c050;
       text-transform: uppercase;
     }
 
-    /* ── Save button ── */
     .save-btn {
-      width: min(88vw, 480px);
+      width: min(86vw, 460px);
       padding: 15px;
       border: none;
-      border-radius: 12px;
+      border-radius: 11px;
       background: linear-gradient(135deg, #7a5500 0%, #c9950a 30%, #e8c050 55%, #c9950a 75%, #7a5500 100%);
       font-family: 'Montserrat', sans-serif;
       font-size: 12px;
@@ -99,16 +91,16 @@
       text-transform: uppercase;
       color: #111;
       cursor: pointer;
-      box-shadow: 0 4px 28px rgba(201,149,10,0.35);
+      box-shadow: 0 4px 28px rgba(201,149,10,0.3);
       transition: filter 0.2s, transform 0.15s;
     }
-    .save-btn:hover  { filter: brightness(1.12); transform: translateY(-2px); }
-    .save-btn:active { transform: translateY(0);  filter: brightness(0.95); }
+    .save-btn:hover  { filter: brightness(1.1); transform: translateY(-2px); }
+    .save-btn:active { transform: translateY(0); filter: brightness(0.95); }
 
     .hint {
       font-size: 10px;
-      letter-spacing: 0.12em;
-      color: #333;
+      letter-spacing: 0.14em;
+      color: #2e2e2e;
       text-transform: uppercase;
     }
   </style>
@@ -117,9 +109,7 @@
 
   <div class="scene" id="scene">
     <div class="card-3d" id="card">
-      <div class="face">
-        <img id="cardImg" src="card.png" alt="Nate Howard — JOV AI" />
-      </div>
+      <img id="cardImg" src="card.png" alt="Nate Howard — JOV AI" />
       <div class="shine" id="shine"></div>
     </div>
   </div>
@@ -128,87 +118,75 @@
   <div class="hint">Drag to spin &nbsp;·&nbsp; Drop image to update</div>
 
   <script>
+    const scene = document.getElementById('scene');
     const card  = document.getElementById('card');
     const shine = document.getElementById('shine');
     const img   = document.getElementById('cardImg');
 
-    // ── 3D drag rotation ──
+    let rotX = 5, rotY = -10;
     let dragging = false;
-    let startX, startY, rotX = 4, rotY = -8;
+    let lastX, lastY;
+    let velX = 0, velY = 0;
+    let rafId;
 
-    function setTransform(rx, ry) {
-      card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
-      const sx = 50 + ry * -1.2;
-      const sy = 50 + rx * 1.2;
-      shine.style.background = `radial-gradient(ellipse at ${sx}% ${sy}%, rgba(255,255,255,0.18) 0%, transparent 65%)`;
+    function applyTransform() {
+      card.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
+      const sx = 50 - rotY * 1.5;
+      const sy = 50 + rotX * 1.5;
+      shine.style.background = `radial-gradient(ellipse at ${sx}% ${sy}%, rgba(255,255,255,0.15) 0%, transparent 60%)`;
     }
 
-    document.getElementById('scene').addEventListener('mousedown', e => {
+    // pointer events (works for mouse + touch)
+    scene.addEventListener('pointerdown', e => {
       dragging = true;
-      startX = e.clientX;
-      startY = e.clientY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      velX = velY = 0;
+      scene.classList.add('dragging');
+      cancelAnimationFrame(rafId);
+      e.preventDefault();
     });
 
-    window.addEventListener('mousemove', e => {
+    window.addEventListener('pointermove', e => {
       if (!dragging) return;
-      const dx = e.clientX - startX;
-      const dy = e.clientY - startY;
-      startX = e.clientX;
-      startY = e.clientY;
-      rotY = Math.max(-40, Math.min(40, rotY + dx * 0.5));
-      rotX = Math.max(-30, Math.min(30, rotX - dy * 0.5));
-      setTransform(rotX, rotY);
+      const dx = e.clientX - lastX;
+      const dy = e.clientY - lastY;
+      lastX = e.clientX;
+      lastY = e.clientY;
+      velX = dx;
+      velY = dy;
+      rotY = Math.max(-45, Math.min(45, rotY + dx * 0.4));
+      rotX = Math.max(-30, Math.min(30, rotX - dy * 0.4));
+      applyTransform();
     });
 
-    window.addEventListener('mouseup', () => { dragging = false; });
+    window.addEventListener('pointerup', () => {
+      if (!dragging) return;
+      dragging = false;
+      scene.classList.remove('dragging');
+      coast();
+    });
 
-    // Touch support
-    let lastTX, lastTY;
-    card.addEventListener('touchstart', e => {
-      lastTX = e.touches[0].clientX;
-      lastTY = e.touches[0].clientY;
-    }, { passive: true });
-
-    card.addEventListener('touchmove', e => {
-      const dx = e.touches[0].clientX - lastTX;
-      const dy = e.touches[0].clientY - lastTY;
-      lastTX = e.touches[0].clientX;
-      lastTY = e.touches[0].clientY;
-      rotY = Math.max(-40, Math.min(40, rotY + dx * 0.5));
-      rotX = Math.max(-30, Math.min(30, rotX - dy * 0.5));
-      setTransform(rotX, rotY);
-    }, { passive: true });
-
-    // Idle float animation when not dragging
-    let frame;
-    let idleAngle = 0;
-    function idle() {
-      if (!dragging) {
-        idleAngle += 0.3;
-        const iy = Math.sin(idleAngle * Math.PI / 180) * 6 - 8;
-        const ix = Math.cos(idleAngle * Math.PI / 180 * 0.6) * 3 + 4;
-        setTransform(ix, iy);
-      }
-      frame = requestAnimationFrame(idle);
+    // momentum coast after release
+    function coast() {
+      if (Math.abs(velX) < 0.2 && Math.abs(velY) < 0.2) return;
+      velX *= 0.92;
+      velY *= 0.92;
+      rotY = Math.max(-45, Math.min(45, rotY + velX * 0.4));
+      rotX = Math.max(-30, Math.min(30, rotX - velY * 0.4));
+      applyTransform();
+      rafId = requestAnimationFrame(coast);
     }
 
-    document.getElementById('scene').addEventListener('mousedown', () => cancelAnimationFrame(frame));
-    window.addEventListener('mouseup', () => { setTimeout(() => { idle(); }, 1000); });
+    applyTransform();
 
-    idle();
-
-    // ── Drag-and-drop image replacement ──
-    ['dragenter','dragover'].forEach(evt => {
-      card.addEventListener(evt, e => {
-        e.preventDefault();
-        card.classList.add('drag-over');
-      });
-    });
-
-    ['dragleave','dragend'].forEach(evt => {
-      card.addEventListener(evt, () => card.classList.remove('drag-over'));
-    });
-
+    // drag-and-drop image swap
+    ['dragenter','dragover'].forEach(evt =>
+      card.addEventListener(evt, e => { e.preventDefault(); card.classList.add('drag-over'); })
+    );
+    ['dragleave','dragend'].forEach(evt =>
+      card.addEventListener(evt, () => card.classList.remove('drag-over'))
+    );
     card.addEventListener('drop', e => {
       e.preventDefault();
       card.classList.remove('drag-over');
@@ -220,18 +198,12 @@
       }
     });
 
-    // ── Save contact ──
+    // save contact
     function saveContact() {
       const vcard = [
-        'BEGIN:VCARD',
-        'VERSION:3.0',
-        'FN:Nate Howard',
-        'N:Howard;Nate;;;',
-        'ORG:JOV AI',
-        'TITLE:AI Consultant',
-        'TEL;TYPE=CELL:+14699940010',
-        'EMAIL;TYPE=WORK:nate@jov.ai',
-        'URL:https://jov.ai',
+        'BEGIN:VCARD','VERSION:3.0','FN:Nate Howard','N:Howard;Nate;;;',
+        'ORG:JOV AI','TITLE:AI Consultant','TEL;TYPE=CELL:+14699940010',
+        'EMAIL;TYPE=WORK:nate@jov.ai','URL:https://jov.ai',
         'X-SOCIALPROFILE;type=linkedin:https://www.linkedin.com/in/Nate-P-Howard',
         'END:VCARD'
       ].join('\r\n');
