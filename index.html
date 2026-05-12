@@ -6,292 +6,291 @@
   <title>Nate Howard — JOV AI</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       min-height: 100%;
-      background: #0a0a0a;
+      background: #111;
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 24px 16px;
-      font-family: 'Inter', system-ui, sans-serif;
+      padding: 24px 16px 32px;
+      font-family: 'Montserrat', sans-serif;
       -webkit-font-smoothing: antialiased;
     }
 
     .card {
       position: relative;
       width: 100%;
-      max-width: 420px;
-      background: #111;
-      border-radius: 18px;
+      max-width: 400px;
+      background: #1c1c1c;
+      border-radius: 16px;
       overflow: hidden;
       box-shadow:
-        0 0 0 1px #2a2a2a,
-        0 30px 80px rgba(0,0,0,0.8),
-        0 0 60px rgba(201,160,63,0.06);
+        0 0 0 1px #2e2e2e,
+        0 32px 80px rgba(0,0,0,0.85);
     }
 
-    /* Network SVG background */
-    .network-bg {
+    /* ── Network corner SVGs ── */
+    .net {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
+      width: 180px;
+      height: 180px;
       pointer-events: none;
-      opacity: 0.35;
+      opacity: 0.5;
     }
+    .net-tl { top: 0; left: 0; }
+    .net-tr { top: 0; right: 0; transform: scaleX(-1); }
+    .net-bl { bottom: 0; left: 0; transform: scaleY(-1); }
+    .net-br { bottom: 0; right: 0; transform: scale(-1); }
 
-    .card-inner {
+    /* ── Card body ── */
+    .body {
       position: relative;
       z-index: 1;
-      padding: 44px 36px 40px;
+      padding: 44px 32px 38px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
 
     /* ── Logo ── */
-    .logo-wrap {
-      margin-bottom: 20px;
+    .logo {
+      font-size: 44px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      line-height: 1;
+      margin-bottom: 18px;
+    }
+    .logo .jov {
+      background: linear-gradient(170deg, #8a6010 0%, #c9950a 18%, #e8c050 38%, #fff0a0 50%, #e8c050 62%, #c9950a 80%, #7a5500 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo .a-part {
+      background: linear-gradient(170deg, #8a6010 0%, #c9950a 18%, #e8c050 38%, #fff0a0 50%, #e8c050 62%, #c9950a 80%, #7a5500 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .logo .i-part {
+      background: linear-gradient(170deg, #444 0%, #888 20%, #ccc 40%, #eee 50%, #ccc 62%, #888 80%, #444 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.05em;
     }
 
-    .logo-text {
-      font-family: 'Cinzel', serif;
-      font-size: 42px;
+    /* ── Gold rule ── */
+    .rule {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, #9a7520 15%, #d4a030 35%, #e8c050 50%, #d4a030 65%, #9a7520 85%, transparent 100%);
+      margin-bottom: 22px;
+    }
+
+    /* ── Name & Title ── */
+    .name {
+      font-size: 18px;
       font-weight: 700;
       letter-spacing: 0.22em;
-      background: linear-gradient(
-        160deg,
-        #8a6820 0%,
-        #C9A03F 20%,
-        #E8C96A 40%,
-        #f5e09a 50%,
-        #E8C96A 60%,
-        #C9A03F 75%,
-        #8a6820 100%
-      );
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
       text-transform: uppercase;
-      line-height: 1;
-    }
-
-    .logo-text .jov { display: inline; }
-    .logo-text .ai-part {
-      background: linear-gradient(
-        160deg,
-        #5a5a6a 0%,
-        #9090a8 20%,
-        #c8c8d8 40%,
-        #e8e8f0 50%,
-        #c8c8d8 60%,
-        #9090a8 75%,
-        #5a5a6a 100%
-      );
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: 0.22em;
-    }
-
-    .divider {
-      width: 80%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(201,160,63,0.7), transparent);
-      margin: 20px 0 24px;
-    }
-
-    /* ── Identity ── */
-    .name {
-      font-family: 'Cinzel', serif;
-      font-size: 19px;
-      font-weight: 600;
-      letter-spacing: 0.16em;
-      color: #d4a843;
-      text-transform: uppercase;
+      color: #d4a030;
       text-align: center;
       margin-bottom: 6px;
     }
-
     .title {
       font-size: 11px;
       font-weight: 400;
       letter-spacing: 0.28em;
       text-transform: uppercase;
-      color: #aaa;
+      color: #999;
       text-align: center;
-      margin-bottom: 36px;
+      margin-bottom: 32px;
     }
 
-    /* ── Contacts ── */
-    .contacts {
+    /* ── Contact block ── */
+    .contact-block {
       width: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 13px;
-      margin-bottom: 34px;
+      padding-left: 12px;
+      margin-bottom: 32px;
     }
-
-    .row {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-      color: inherit;
-      transition: opacity 0.2s;
+    .company {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: #c9950a;
+      margin-bottom: 12px;
     }
-    .row:hover { opacity: 0.75; }
-
-    .row-label-group {
+    .contact-row {
       display: flex;
       align-items: baseline;
-      gap: 8px;
+      gap: 0;
+      text-decoration: none;
+      color: inherit;
+      margin-bottom: 7px;
     }
-
-    .row-key {
-      font-size: 10px;
+    .contact-row:last-child { margin-bottom: 0; }
+    .lbl {
+      font-size: 12px;
       font-weight: 600;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: #C9A03F;
-      min-width: 18px;
+      color: #bbb;
+      min-width: 28px;
+      letter-spacing: 0.05em;
     }
-
-    .row-val {
-      font-size: 13px;
+    .val {
+      font-size: 12px;
       font-weight: 300;
       color: #ccc;
-      letter-spacing: 0.02em;
+      letter-spacing: 0.03em;
+      transition: color 0.2s;
     }
+    .contact-row:hover .val { color: #e8c050; }
 
-    /* ── Save Button ── */
+    /* ── Save button ── */
     .save-btn {
       width: 100%;
-      padding: 15px;
+      padding: 14px;
       border: none;
       border-radius: 10px;
-      background: linear-gradient(135deg, #9a7520 0%, #C9A03F 35%, #E8C96A 60%, #C9A03F 80%, #9a7520 100%);
-      font-family: 'Cinzel', serif;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.18em;
+      background: linear-gradient(135deg, #7a5500 0%, #c9950a 30%, #e8c050 55%, #c9950a 75%, #7a5500 100%);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.2em;
       text-transform: uppercase;
-      color: #0d0d0d;
+      color: #1c1c1c;
       cursor: pointer;
       transition: filter 0.2s, transform 0.15s;
-      box-shadow: 0 4px 20px rgba(201,160,63,0.25);
+      box-shadow: 0 4px 24px rgba(201,149,10,0.3);
     }
-    .save-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .save-btn:hover { filter: brightness(1.12); transform: translateY(-1px); }
     .save-btn:active { transform: translateY(0); filter: brightness(0.95); }
-
-    .card-footer {
-      margin-top: 18px;
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      color: #3a3a3a;
-      text-transform: uppercase;
-    }
   </style>
 </head>
 <body>
   <div class="card">
-    <!-- Network node pattern -->
-    <svg class="network-bg" viewBox="0 0 420 580" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#C9A03F" stop-opacity="0.15"/>
-          <stop offset="100%" stop-color="#C9A03F" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <!-- top-left cluster -->
-      <line x1="0" y1="60" x2="60" y2="20" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="60" y1="20" x2="110" y2="70" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="110" y1="70" x2="60" y2="110" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="60" y1="20" x2="40" y2="90" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="0" y1="60" x2="40" y2="90" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="40" y1="90" x2="110" y2="70" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="60" y1="110" x2="0" y2="140" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="110" y1="70" x2="150" y2="30" stroke="#C9A03F" stroke-width="0.5"/>
-      <circle cx="0" cy="60" r="2.5" fill="#C9A03F" opacity="0.6"/>
-      <circle cx="60" cy="20" r="2.5" fill="#C9A03F" opacity="0.6"/>
-      <circle cx="110" cy="70" r="2" fill="#C9A03F" opacity="0.5"/>
-      <circle cx="40" cy="90" r="2" fill="#C9A03F" opacity="0.4"/>
-      <circle cx="60" cy="110" r="2" fill="#C9A03F" opacity="0.4"/>
-      <circle cx="150" cy="30" r="2" fill="#C9A03F" opacity="0.3"/>
-      <!-- top-right cluster -->
-      <line x1="420" y1="40" x2="370" y2="80" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="370" y1="80" x2="320" y2="50" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="320" y1="50" x2="370" y2="10" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="370" y1="10" x2="420" y2="40" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="370" y1="80" x2="340" y2="130" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="320" y1="50" x2="280" y2="90" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="280" y1="90" x2="340" y2="130" stroke="#C9A03F" stroke-width="0.5"/>
-      <circle cx="420" cy="40" r="2.5" fill="#C9A03F" opacity="0.6"/>
-      <circle cx="370" cy="80" r="2.5" fill="#C9A03F" opacity="0.6"/>
-      <circle cx="320" cy="50" r="2" fill="#C9A03F" opacity="0.5"/>
-      <circle cx="370" cy="10" r="2" fill="#C9A03F" opacity="0.4"/>
-      <circle cx="340" cy="130" r="2" fill="#C9A03F" opacity="0.4"/>
-      <circle cx="280" cy="90" r="2" fill="#C9A03F" opacity="0.3"/>
-      <!-- bottom-right cluster -->
-      <line x1="420" y1="520" x2="370" y2="490" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="370" y1="490" x2="330" y2="545" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="330" y1="545" x2="390" y2="570" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="370" y1="490" x2="310" y2="470" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="310" y1="470" x2="280" y2="520" stroke="#C9A03F" stroke-width="0.5"/>
-      <circle cx="420" cy="520" r="2.5" fill="#C9A03F" opacity="0.5"/>
-      <circle cx="370" cy="490" r="2" fill="#C9A03F" opacity="0.4"/>
-      <circle cx="330" cy="545" r="2" fill="#C9A03F" opacity="0.4"/>
-      <circle cx="310" cy="470" r="2" fill="#C9A03F" opacity="0.3"/>
-      <!-- bottom-left cluster -->
-      <line x1="0" y1="500" x2="50" y2="470" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="50" y1="470" x2="90" y2="520" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="90" y1="520" x2="40" y2="555" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="40" y1="555" x2="0" y2="500" stroke="#C9A03F" stroke-width="0.5"/>
-      <line x1="50" y1="470" x2="110" y2="455" stroke="#C9A03F" stroke-width="0.5"/>
-      <circle cx="0" cy="500" r="2.5" fill="#C9A03F" opacity="0.5"/>
-      <circle cx="50" cy="470" r="2" fill="#C9A03F" opacity="0.4"/>
-      <circle cx="90" cy="520" r="2" fill="#C9A03F" opacity="0.4"/>
-      <circle cx="110" cy="455" r="2" fill="#C9A03F" opacity="0.3"/>
+
+    <!-- Corner network patterns -->
+    <svg class="net net-tl" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="80" x2="55" y2="30" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="55" y1="30" x2="120" y2="65" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="55" y1="30" x2="45" y2="100" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="0" y1="80" x2="45" y2="100" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="45" y1="100" x2="120" y2="65" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="120" y1="65" x2="155" y2="20" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="45" y1="100" x2="30" y2="155" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="120" y1="65" x2="135" y2="120" stroke="#C9950A" stroke-width="0.5"/>
+      <line x1="55" y1="30" x2="90" y2="0" stroke="#C9950A" stroke-width="0.5"/>
+      <circle cx="55" cy="30" r="3" fill="#C9950A" opacity="0.8"/>
+      <circle cx="120" cy="65" r="2.5" fill="#C9950A" opacity="0.7"/>
+      <circle cx="45" cy="100" r="2.5" fill="#C9950A" opacity="0.6"/>
+      <circle cx="0" cy="80" r="2" fill="#C9950A" opacity="0.5"/>
+      <circle cx="155" cy="20" r="2" fill="#C9950A" opacity="0.4"/>
+      <circle cx="30" cy="155" r="2" fill="#C9950A" opacity="0.3"/>
+      <circle cx="135" cy="120" r="1.5" fill="#C9950A" opacity="0.3"/>
+      <circle cx="90" cy="0" r="1.5" fill="#C9950A" opacity="0.3"/>
     </svg>
 
-    <div class="card-inner">
-      <div class="logo-wrap">
-        <span class="logo-text">
-          <span class="jov">JOV</span><span class="ai-part">Ai</span>
-        </span>
+    <svg class="net net-tr" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="80" x2="55" y2="30" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="55" y1="30" x2="120" y2="65" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="55" y1="30" x2="45" y2="100" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="0" y1="80" x2="45" y2="100" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="45" y1="100" x2="120" y2="65" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="120" y1="65" x2="155" y2="20" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="45" y1="100" x2="30" y2="155" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="120" y1="65" x2="135" y2="120" stroke="#C9950A" stroke-width="0.5"/>
+      <line x1="55" y1="30" x2="90" y2="0" stroke="#C9950A" stroke-width="0.5"/>
+      <circle cx="55" cy="30" r="3" fill="#C9950A" opacity="0.8"/>
+      <circle cx="120" cy="65" r="2.5" fill="#C9950A" opacity="0.7"/>
+      <circle cx="45" cy="100" r="2.5" fill="#C9950A" opacity="0.6"/>
+      <circle cx="0" cy="80" r="2" fill="#C9950A" opacity="0.5"/>
+      <circle cx="155" cy="20" r="2" fill="#C9950A" opacity="0.4"/>
+      <circle cx="30" cy="155" r="2" fill="#C9950A" opacity="0.3"/>
+      <circle cx="135" cy="120" r="1.5" fill="#C9950A" opacity="0.3"/>
+      <circle cx="90" cy="0" r="1.5" fill="#C9950A" opacity="0.3"/>
+    </svg>
+
+    <svg class="net net-bl" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="80" x2="55" y2="30" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="55" y1="30" x2="120" y2="65" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="55" y1="30" x2="45" y2="100" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="0" y1="80" x2="45" y2="100" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="45" y1="100" x2="120" y2="65" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="120" y1="65" x2="155" y2="20" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="45" y1="100" x2="30" y2="155" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="120" y1="65" x2="135" y2="120" stroke="#C9950A" stroke-width="0.5"/>
+      <line x1="55" y1="30" x2="90" y2="0" stroke="#C9950A" stroke-width="0.5"/>
+      <circle cx="55" cy="30" r="3" fill="#C9950A" opacity="0.8"/>
+      <circle cx="120" cy="65" r="2.5" fill="#C9950A" opacity="0.7"/>
+      <circle cx="45" cy="100" r="2.5" fill="#C9950A" opacity="0.6"/>
+      <circle cx="0" cy="80" r="2" fill="#C9950A" opacity="0.5"/>
+      <circle cx="155" cy="20" r="2" fill="#C9950A" opacity="0.4"/>
+      <circle cx="30" cy="155" r="2" fill="#C9950A" opacity="0.3"/>
+      <circle cx="135" cy="120" r="1.5" fill="#C9950A" opacity="0.3"/>
+      <circle cx="90" cy="0" r="1.5" fill="#C9950A" opacity="0.3"/>
+    </svg>
+
+    <svg class="net net-br" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="80" x2="55" y2="30" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="55" y1="30" x2="120" y2="65" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="55" y1="30" x2="45" y2="100" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="0" y1="80" x2="45" y2="100" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="45" y1="100" x2="120" y2="65" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="120" y1="65" x2="155" y2="20" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="45" y1="100" x2="30" y2="155" stroke="#C9950A" stroke-width="0.7"/>
+      <line x1="120" y1="65" x2="135" y2="120" stroke="#C9950A" stroke-width="0.5"/>
+      <line x1="55" y1="30" x2="90" y2="0" stroke="#C9950A" stroke-width="0.5"/>
+      <circle cx="55" cy="30" r="3" fill="#C9950A" opacity="0.8"/>
+      <circle cx="120" cy="65" r="2.5" fill="#C9950A" opacity="0.7"/>
+      <circle cx="45" cy="100" r="2.5" fill="#C9950A" opacity="0.6"/>
+      <circle cx="0" cy="80" r="2" fill="#C9950A" opacity="0.5"/>
+      <circle cx="155" cy="20" r="2" fill="#C9950A" opacity="0.4"/>
+      <circle cx="30" cy="155" r="2" fill="#C9950A" opacity="0.3"/>
+      <circle cx="135" cy="120" r="1.5" fill="#C9950A" opacity="0.3"/>
+      <circle cx="90" cy="0" r="1.5" fill="#C9950A" opacity="0.3"/>
+    </svg>
+
+    <div class="body">
+      <!-- Logo -->
+      <div class="logo">
+        <span class="jov">JOV</span><span class="a-part">A</span><span class="i-part">i</span>
       </div>
 
-      <div class="divider"></div>
+      <!-- Gold rule -->
+      <div class="rule"></div>
 
+      <!-- Name & title -->
       <div class="name">Nate Howard</div>
       <div class="title">AI Consultant</div>
 
-      <div class="contacts">
-        <a class="row" href="tel:+14699940010">
-          <span class="row-key">T</span>
-          <span class="row-val">469.994.0010</span>
+      <!-- Contact block -->
+      <div class="contact-block">
+        <div class="company">JOV AI</div>
+        <a class="contact-row" href="tel:+14699940010">
+          <span class="lbl">T:</span>
+          <span class="val">469.994.0010</span>
         </a>
-        <a class="row" href="mailto:nate@jov.ai">
-          <span class="row-key">E</span>
-          <span class="row-val">nate@jov.ai</span>
+        <a class="contact-row" href="mailto:nate@jov.ai">
+          <span class="lbl">E:</span>
+          <span class="val">nate@jov.ai</span>
         </a>
-        <a class="row" href="https://jov.ai" target="_blank" rel="noopener">
-          <span class="row-key">W</span>
-          <span class="row-val">jov.ai</span>
+        <a class="contact-row" href="https://www.linkedin.com/in/Nate-P-Howard" target="_blank" rel="noopener">
+          <span class="lbl">Li:</span>
+          <span class="val">linkedin.com/in/Nate-P-Howard</span>
         </a>
-        <a class="row" href="https://www.linkedin.com/in/Nate-P-Howard" target="_blank" rel="noopener">
-          <span class="row-key">Li</span>
-          <span class="row-val">linkedin.com/in/Nate-P-Howard</span>
+        <a class="contact-row" href="https://jov.ai" target="_blank" rel="noopener">
+          <span class="lbl">W:</span>
+          <span class="val">jov.ai</span>
         </a>
       </div>
 
+      <!-- Save button -->
       <button class="save-btn" onclick="saveContact()">Save Contact</button>
-
-      <div class="card-footer">JOV AI &mdash; jov.ai</div>
     </div>
   </div>
 
@@ -310,7 +309,6 @@
         'X-SOCIALPROFILE;type=linkedin:https://www.linkedin.com/in/Nate-P-Howard',
         'END:VCARD'
       ].join('\r\n');
-
       const blob = new Blob([vcard], { type: 'text/vcard;charset=utf-8' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
