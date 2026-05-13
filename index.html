@@ -28,8 +28,8 @@
 
     .banner {
       width: 100%;
-      height: 140px;
-      background: linear-gradient(135deg, #1a1200 0%, #3d2900 40%, #7a5500 70%, #c9950a 100%);
+      height: 160px;
+      background: #111 url('card.png') center center / cover no-repeat;
     }
 
     .avatar-wrap {
@@ -200,7 +200,7 @@
     <div class="banner"></div>
 
     <div class="avatar-wrap">
-      <img id="pfp" src="pfp_small.jpg" alt="Nate Howard" crossorigin="anonymous" />
+      <img id="pfp" src="pfp_suit.jpg" alt="Nate Howard" crossorigin="anonymous" />
     </div>
 
     <div class="identity">
@@ -283,7 +283,7 @@
     }
 
     async function saveContact() {
-      const photoB64 = await toBase64('pfp_small.jpg');
+      const photoB64 = await toBase64('pfp_suit.jpg');
       const lines = [
         'BEGIN:VCARD', 'VERSION:3.0',
         'FN:Nate Howard', 'N:Howard;Nate;;;',
